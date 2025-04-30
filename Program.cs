@@ -16,8 +16,7 @@ namespace MYBS
         private const uint ELF_MAGIC = 0x464C457F;
 
         private const string SYM_INITIALIZE_BOMB = "initialize_bomb";
-        private const string SYM_PHASE_DEFUSED = "phase_defused";
-        private const string SYM_EXPLODE_BOMB = "send_msg";
+        private const string SYM_SEND_MSG = "send_msg";
 
         private static unsafe ushort R16u(void* ptr) => *(ushort*)ptr;
 
@@ -80,15 +79,13 @@ namespace MYBS
                 fixed (byte* pBomb = bomb)
                 {
                     uint initializeBombOffset = FindSymbol(pBomb, SYM_INITIALIZE_BOMB);
-                    uint phaseDefusedBombOffset = FindSymbol(pBomb, SYM_PHASE_DEFUSED);
-                    uint explodeBombOffset = FindSymbol(pBomb, SYM_EXPLODE_BOMB);
+                    uint sendMsgOffset = FindSymbol(pBomb, SYM_SEND_MSG);
 
                     Console.WriteLine($"Function \"{SYM_INITIALIZE_BOMB}\" at 0x{initializeBombOffset:X}");
-                    Console.WriteLine($"Function \"{SYM_PHASE_DEFUSED}\" at 0x{phaseDefusedBombOffset:X}");
-                    Console.WriteLine($"Function \"{SYM_EXPLODE_BOMB}\" at 0x{explodeBombOffset:X}");
+                    Console.WriteLine($"Function \"{SYM_SEND_MSG}\" at 0x{sendMsgOffset:X}");
                     Console.WriteLine();
 
-                    if (initializeBombOffset == 0 || phaseDefusedBombOffset == 0 || explodeBombOffset == 0)
+                    if (initializeBombOffset == 0 || sendMsgOffset == 0)
                     {
                         Console.WriteLine("함수 주소를 찾을 수 없습니다.");
                         Exit();
@@ -114,15 +111,10 @@ namespace MYBS
                                 isCalleeTarget = true;
                                 calleeTargetFunctionName = SYM_INITIALIZE_BOMB;
                             }
-                            else if (abs32 == phaseDefusedBombOffset)
+                            else if (abs32 == sendMsgOffset) // call send_msg
                             {
                                 isCalleeTarget = true;
-                                calleeTargetFunctionName = SYM_PHASE_DEFUSED;
-                            }
-                            else if (abs32 == explodeBombOffset)
-                            {
-                                isCalleeTarget = true;
-                                calleeTargetFunctionName = SYM_EXPLODE_BOMB;
+                                calleeTargetFunctionName = SYM_SEND_MSG;
                             }
 
                             if (isCalleeTarget)
